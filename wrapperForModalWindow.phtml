@@ -1,0 +1,64 @@
+
+
+        <!--Modal window-->
+        <div id="modal" class="fixed z-50 inset-0 bg-black bg-opacity-50 w-full flex md:flex-row-reverse"
+            :class="{'hidden': !isShowModal}"
+            x-data="initModalWindow()"
+            x-init="getSummaryHeight()"
+            :style=" 'margin-top: ' + summaryHeight + 'px'">
+            <div class="relative bg-white md:basis-4/12 md-max:w-full">
+                <!-- Modal header -->
+                <div class="flex flex-row md:justify-between items-center py-4 pr-5 pl-8 md-max:pl-4 border-b">
+                    <div class="flex md-max:justify-center md-max:grow">
+                        <div class="text-xl md-max:text-base font-medium">
+                            <?= $escaper->escapeHtml(__('Availability in store')); ?>
+                        </div>
+                    </div>
+                    <div @click="closeModal" class="cursor-pointer">
+                        <?= $heroicons->xHtml('', 10, 10) ?>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <script>
+            function initModalWindow() {
+
+                function checkIsInViewPort(positionObject) {
+                    return positionObject ? (positionObject.top >= 0 &&
+                        positionObject.left >= 0 &&
+                        positionObject.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                        positionObject.right <= (window.innerWidth || document.documentElement.clientWidth)) : false;
+
+                }
+              //Add on the element from which to indent 
+              //@scroll.window.debounce="Alpine.store('topBarPosition', $el.getBoundingClientRect())"
+               //x-init="Alpine.store('topBarPosition', $el.getBoundingClientRect()); Alpine.store('topBarShow', show);">
+                return {
+                    headerPosition: {},
+                    topBarPosition: {},
+                    isHeaderInViewPort: true,
+                    isTopBarInViewPort: true,
+                    topBarHeight: 0,
+                    headerHeight: 0,
+                    summaryHeight: 0,
+                    isTopBarShow: Alpine.store('topBarShow'),
+                    getSummaryHeight() {
+                        Alpine.effect(() => {
+                            this.headerPosition = Alpine.store('headerPosition');
+                            this.topBarPosition = Alpine.store('topBarPosition');
+                            this.isTopBarShow= Alpine.store('topBarShow');
+
+                            this.isHeaderInViewPort = checkIsInViewPort(this.headerPosition);
+                            this.isTopBarInViewPort = checkIsInViewPort(this.topBarPosition);
+
+                            this.headerHeight = this.isHeaderInViewPort ? this.headerPosition.height : 0;
+                            this.topBarHeight = (this.isTopBarInViewPort && this.isTopBarShow) ? this.topBarPosition.height : 0;
+
+                            this.summaryHeight = this.topBarHeight + this.headerHeight;
+                        })
+                    }
+                };
+            }
+        </script>
+    </div>
+<?php endif; ?>
